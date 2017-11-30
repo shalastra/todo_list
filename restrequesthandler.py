@@ -1,4 +1,4 @@
-import BaseHTTPServer, re
+import BaseHTTPServer, re, json
 from todolist import TodoList
 
 class RESTRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):

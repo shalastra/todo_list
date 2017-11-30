@@ -1,7 +1,6 @@
 import urllib2
 
 class MethodRequest(urllib2.Request):
-    'See: https://gist.github.com/logic/2715756'
     def __init__(self, *args, **kwargs):
         if 'method' in kwargs:
             self._method = kwargs['method']

@@ -1,9 +1,8 @@
-import urllib
+import urllib, urllib2, json
 from methodrequest import MethodRequest
 
 class TodoList():
-    def __init__(self):
-        self.todos = {}
+    tasks = {}
 
     def get_tasks(handler):
         return self.todos
