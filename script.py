@@ -10,12 +10,11 @@ here = os.path.dirname(os.path.realpath(__file__))
 
 tasks = {}
 
+with open('help.txt') as f:
+    content = f.readlines()
+
 parser=argparse.ArgumentParser(
-    description='''Simple RESTful server ofr handling basic HTTP operations, serves as a todolist application. 
-To test, simple run:\n
-curl -i http://localhost:5000/todo/tasks\n
-to test getting one element, run:\n
-curl -i http://localhost:5000/todo/tasks/<id> ''',
+    usage=''.join(content),
     epilog="""""")
 args=parser.parse_args()
 

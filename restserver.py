@@ -7,7 +7,8 @@ from restrequesthandler import RESTRequestHandler
 def rest_server(port):
     print 'Starts the REST server'
     http_server = BaseHTTPServer.HTTPServer(('', port), RESTRequestHandler)
-    print 'Starting HTTP server at port %d' % port
+    print 'Starting HTTP server at port %d...' % port
+    print 'CTRL + C stops the server'
     try:
         http_server.serve_forever()
     except KeyboardInterrupt:
