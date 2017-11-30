@@ -1,6 +1,8 @@
 #!flask/bin/python
 import argparse, sys, os
 
+from restserver import rest_server
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -16,9 +18,6 @@ to test getting one element, run:\n
 curl -i http://localhost:5000/todo/tasks/<id> ''',
     epilog="""""")
 args=parser.parse_args()
-
-def rest_server(port):
-    print("test")
 
 def main(argv):
     rest_server(8080)
