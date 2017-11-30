@@ -2,7 +2,7 @@ Simple RESTful server ofr handling basic HTTP operations,
         serves as a todolist application.
 
 To test, simple run:
-curl -i http://localhost:5000/todo/tasks
+curl -i http://localhost:8080/todo/tasks
 
 to test getting one element, run:
-curl -i http://localhost:5000/todo/tasks/<id>
+curl -i http://localhost:8080/todo/tasks/<id>
