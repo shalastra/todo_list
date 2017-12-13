@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
-import BaseHTTPServer, re, json, shutil, urllib, urllib2
+import json
+import re
+import shutil
+import urllib
+
+import BaseHTTPServer
+import urllib2
 
 tasks = {}
 
@@ -61,7 +67,7 @@ class RESTRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             r'^/$': {'file': 'web/index.html', 'media_type': 'text/html'},
             r'^/tasks': {'GET': get_tasks, 'media_type': 'application/json'},
             r'^/task/': {'GET': get_task, 'PUT': add_task, 'DELETE': remove_task,
-                           'media_type': 'application/json'}}
+                         'media_type': 'application/json'}}
 
         return BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
@@ -144,14 +150,15 @@ class RESTRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 return route
         return None
 
+
 def rest_server(port):
-    print 'Starts the REST server'
+    print('Starts the REST server')
     http_server = BaseHTTPServer.HTTPServer(('', port), RESTRequestHandler)
-    print 'Starting HTTP server at port %d...' % port
-    print 'CTRL + C stops the server'
+    print('Starting HTTP server at port %d...' % port)
+    print('CTRL + C stops the server')
     try:
         http_server.serve_forever()
     except KeyboardInterrupt:
         pass
-    print 'Stopping HTTP server'
+    print('Stopping HTTP server')
     http_server.server_close()
