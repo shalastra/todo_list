@@ -1,8 +1,25 @@
-Simple RESTful server ofr handling basic HTTP operations,
-        serves as a todolist application.
+Simple RESTful server for handling basic HTTP operations,
+serves as a tasks application.
+Written in Python 2.7, it is not going to work with different
+version due to deprecation some of standard libraries.
+Program is using only standard libraries, no additional setup is
+required.
 
 To test, simple run:
 curl -i http://localhost:8080/tasks
 
+In response you will receive a list of tasks in JSON format
+
 to test getting one element, run:
-curl -i http://localhost:8080/tasks/<id>
+curl -i http://localhost:8080/task/<id>
+In response you will receive a single task in JSON format
+
+To add new task you should execute(instead of <id> put a number):
+curl -X PUT -d '{"name": "Buy bananas"}' "http://localhost:8080/task/<id>"
+This will create a new key/value pair.
+
+Now you can call task/<id> and you will receive element you just added.
+
+To remove an element call:
+curl -X DELETE "http://localhost:8080/task/<id>"
+Where <id> should be an id you want to remove.

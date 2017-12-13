@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # IMPORTS
 import json
@@ -30,7 +30,8 @@ def get_task(handler):
 
 # add new task
 def add_task(handler):
-    key = urllib.unquote(handler.path[8:])
+    key = urllib.unquote(handler.path[6:])
+    print(key)
     payload = handler.get_payload()
     tasks[key] = payload
     return tasks[key]
