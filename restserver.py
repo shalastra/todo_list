@@ -1,6 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+# IMPORTS
 import json
+import os
 import re
 import shutil
 import urllib
@@ -8,18 +10,25 @@ import urllib
 import BaseHTTPServer
 import urllib2
 
+# List of stored tasks
 tasks = {}
 
+# current location path
+current_path = os.path.dirname(os.path.realpath(__file__))
 
+
+# returns list of tasks
 def get_tasks(handler):
     return tasks
 
 
+# returns particular task specified by id
 def get_task(handler):
     key = urllib.unquote(handler.path[8:])
     return tasks[key] if key in tasks else None
 
 
+# add new task
 def add_task(handler):
     key = urllib.unquote(handler.path[8:])
     payload = handler.get_payload()
@@ -27,14 +36,14 @@ def add_task(handler):
     return tasks[key]
 
 
+# removes particular task specified by id
 def remove_task(handler):
     key = urllib.unquote(handler.path[8:])
     del tasks[key]
-    return True  # anything except None shows success
+    return True
 
 
 def rest_call_json(url, payload=None, with_payload_method='PUT'):
-    'REST call with JSON decoding of the response and JSON payloads'
     if payload:
         if not isinstance(payload, basestring):
             payload = json.dumps(payload)
@@ -63,6 +72,7 @@ class MethodRequest(urllib2.Request):
 
 class RESTRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
+        # routes defined for return list of tasks and single task operations
         self.routes = {
             r'^/$': {'file': 'web/index.html', 'media_type': 'text/html'},
             r'^/tasks': {'GET': get_tasks, 'media_type': 'application/json'},
@@ -92,6 +102,7 @@ class RESTRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         payload = json.loads(payload)
         return payload
 
+    # responsible for handling calls
     def handle_method(self, method):
         route = self.get_route()
         if route is None:
@@ -108,7 +119,7 @@ class RESTRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 if 'file' in route:
                     if method == 'GET':
                         try:
-                            f = open(os.path.join(here, route['file']))
+                            f = open(os.path.join(current_path, route['file']))
                             try:
                                 self.send_response(200)
                                 if 'media_type' in route:
@@ -151,6 +162,7 @@ class RESTRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         return None
 
 
+# starts and stops REST server
 def rest_server(port):
     print('Starts the REST server')
     http_server = BaseHTTPServer.HTTPServer(('', port), RESTRequestHandler)
