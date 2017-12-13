@@ -75,7 +75,6 @@ class RESTRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         # routes defined for return list of tasks and single task operations
         self.routes = {
-            r'^/$': {'file': 'web/index.html', 'media_type': 'text/html'},
             r'^/tasks': {'GET': get_tasks, 'media_type': 'application/json'},
             r'^/task/': {'GET': get_task, 'PUT': add_task, 'DELETE': remove_task,
                          'media_type': 'application/json'}}
