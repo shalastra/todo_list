@@ -1,8 +1,148 @@
 #!/usr/bin/env python
 
-import BaseHTTPServer
+import BaseHTTPServer, re, json, shutil, urllib, urllib2
 
-from restrequesthandler import RESTRequestHandler
+tasks = {}
+
+
+def get_tasks(handler):
+    return tasks
+
+
+def get_task(handler):
+    key = urllib.unquote(handler.path[8:])
+    return tasks[key] if key in tasks else None
+
+
+def add_task(handler):
+    key = urllib.unquote(handler.path[8:])
+    payload = handler.get_payload()
+    tasks[key] = payload
+    return tasks[key]
+
+
+def remove_task(handler):
+    key = urllib.unquote(handler.path[8:])
+    del tasks[key]
+    return True  # anything except None shows success
+
+
+def rest_call_json(url, payload=None, with_payload_method='PUT'):
+    'REST call with JSON decoding of the response and JSON payloads'
+    if payload:
+        if not isinstance(payload, basestring):
+            payload = json.dumps(payload)
+        # PUT or POST
+        response = urllib2.urlopen(
+            MethodRequest(url, payload, {'Content-Type': 'application/json'}, method=with_payload_method))
+    else:
+        # GET
+        response = urllib2.urlopen(url)
+    response = response.read().decode()
+    return json.loads(response)
+
+
+class MethodRequest(urllib2.Request):
+    def __init__(self, *args, **kwargs):
+        if 'method' in kwargs:
+            self._method = kwargs['method']
+            del kwargs['method']
+        else:
+            self._method = None
+        return urllib2.Request.__init__(self, *args, **kwargs)
+
+    def get_method(self, *args, **kwargs):
+        return self._method if self._method is not None else urllib2.Request.get_method(self, *args, **kwargs)
+
+
+class RESTRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        self.routes = {
+            r'^/$': {'file': 'web/index.html', 'media_type': 'text/html'},
+            r'^/tasks': {'GET': get_tasks, 'media_type': 'application/json'},
+            r'^/task/': {'GET': get_task, 'PUT': add_task, 'DELETE': remove_task,
+                           'media_type': 'application/json'}}
+
+        return BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
+
+    def do_HEAD(self):
+        self.handle_method('HEAD')
+
+    def do_GET(self):
+        self.handle_method('GET')
+
+    def do_POST(self):
+        self.handle_method('POST')
+
+    def do_PUT(self):
+        self.handle_method('PUT')
+
+    def do_DELETE(self):
+        self.handle_method('DELETE')
+
+    def get_payload(self):
+        payload_len = int(self.headers.getheader('content-length', 0))
+        payload = self.rfile.read(payload_len)
+        payload = json.loads(payload)
+        return payload
+
+    def handle_method(self, method):
+        route = self.get_route()
+        if route is None:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write('Route not found\n')
+        else:
+            if method == 'HEAD':
+                self.send_response(200)
+                if 'media_type' in route:
+                    self.send_header('Content-type', route['media_type'])
+                self.end_headers()
+            else:
+                if 'file' in route:
+                    if method == 'GET':
+                        try:
+                            f = open(os.path.join(here, route['file']))
+                            try:
+                                self.send_response(200)
+                                if 'media_type' in route:
+                                    self.send_header('Content-type', route['media_type'])
+                                self.end_headers()
+                                shutil.copyfileobj(f, self.wfile)
+                            finally:
+                                f.close()
+                        except:
+                            self.send_response(404)
+                            self.end_headers()
+                            self.wfile.write('File not found\n')
+                    else:
+                        self.send_response(405)
+                        self.end_headers()
+                        self.wfile.write('Only GET is supported\n')
+                else:
+                    if method in route:
+                        content = route[method](self)
+                        if content is not None:
+                            self.send_response(200)
+                            if 'media_type' in route:
+                                self.send_header('Content-type', route['media_type'])
+                            self.end_headers()
+                            if method != 'DELETE':
+                                self.wfile.write(json.dumps(content))
+                        else:
+                            self.send_response(404)
+                            self.end_headers()
+                            self.wfile.write('Not found\n')
+                    else:
+                        self.send_response(405)
+                        self.end_headers()
+                        self.wfile.write(method + ' is not supported\n')
+
+    def get_route(self):
+        for path, route in self.routes.iteritems():
+            if re.match(path, self.path):
+                return route
+        return None
 
 def rest_server(port):
     print 'Starts the REST server'

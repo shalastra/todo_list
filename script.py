@@ -6,8 +6,6 @@ from restserver import rest_server
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-here = os.path.dirname(os.path.realpath(__file__))
-
 tasks = {}
 
 with open('help.txt') as f:

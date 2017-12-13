@@ -29,3 +29,6 @@ venv
 build
 
 .idea/workspace.xml
+.idea/other.xml
+
+.idea
