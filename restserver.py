@@ -4,7 +4,6 @@
 import json
 import os
 import re
-import shutil
 import urllib
 
 import BaseHTTPServer
@@ -116,44 +115,23 @@ class RESTRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     self.send_header('Content-type', route['media_type'])
                 self.end_headers()
             else:
-                if 'file' in route:
-                    if method == 'GET':
-                        try:
-                            f = open(os.path.join(current_path, route['file']))
-                            try:
-                                self.send_response(200)
-                                if 'media_type' in route:
-                                    self.send_header('Content-type', route['media_type'])
-                                self.end_headers()
-                                shutil.copyfileobj(f, self.wfile)
-                            finally:
-                                f.close()
-                        except:
-                            self.send_response(404)
-                            self.end_headers()
-                            self.wfile.write('File not found\n')
-                    else:
-                        self.send_response(405)
+                if method in route:
+                    content = route[method](self)
+                    if content is not None:
+                        self.send_response(200)
+                        if 'media_type' in route:
+                            self.send_header('Content-type', route['media_type'])
                         self.end_headers()
-                        self.wfile.write('Only GET is supported\n')
+                        if method != 'DELETE':
+                            self.wfile.write(json.dumps(content))
+                    else:
+                        self.send_response(404)
+                        self.end_headers()
+                        self.wfile.write('Not found\n')
                 else:
-                    if method in route:
-                        content = route[method](self)
-                        if content is not None:
-                            self.send_response(200)
-                            if 'media_type' in route:
-                                self.send_header('Content-type', route['media_type'])
-                            self.end_headers()
-                            if method != 'DELETE':
-                                self.wfile.write(json.dumps(content))
-                        else:
-                            self.send_response(404)
-                            self.end_headers()
-                            self.wfile.write('Not found\n')
-                    else:
-                        self.send_response(405)
-                        self.end_headers()
-                        self.wfile.write(method + ' is not supported\n')
+                    self.send_response(405)
+                    self.end_headers()
+                    self.wfile.write(method + ' is not supported\n')
 
     def get_route(self):
         for path, route in self.routes.iteritems():
