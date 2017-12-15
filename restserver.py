@@ -23,7 +23,7 @@ def get_tasks(handler):
 
 # returns particular task specified by id
 def get_task(handler):
-    key = urllib.unquote(handler.path[8:])
+    key = urllib.unquote(handler.path[6:])
     return tasks[key] if key in tasks else None
 
 
