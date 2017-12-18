@@ -38,7 +38,7 @@ def add_task(handler):
 
 # removes particular task specified by id
 def remove_task(handler):
-    key = urllib.unquote(handler.path[8:])
+    key = urllib.unquote(handler.path[6:])
     del tasks[key]
     return True
 
